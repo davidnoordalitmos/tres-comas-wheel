@@ -11,6 +11,7 @@ function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
 
   const addName = () => {
@@ -28,14 +29,17 @@ function App() {
     if (names.length === 0) return;
     setSpinning(true);
     setSelected(null);
+    setSelectedIndex(null);
     // Pick a random winner
     const winnerIndex = Math.floor(Math.random() * names.length);
-    // Spin at least 5 full turns + land on winner
+    // Spin at least 5 full turns + land on winner AT TOP (0deg)
     const degreesPerSlice = 360 / names.length;
-    const targetRotation = 360 * 5 + (360 - winnerIndex * degreesPerSlice);
+    // To align the winner at the pointer (top), rotate so winnerIndex lands at 0deg
+    const targetRotation = 360 * 5 - winnerIndex * degreesPerSlice;
     setRotation(targetRotation);
     setTimeout(() => {
       setSelected(names[winnerIndex]);
+      setSelectedIndex(winnerIndex);
       setSpinning(false);
       setRotation(targetRotation % 360);
     }, 2500);
@@ -71,7 +75,9 @@ function App() {
             names.map((n, i) => (
               <div
                 key={n}
-                className={`wheel-slice${selected === n ? " selected" : ""}`}
+                className={`wheel-slice${
+                  selectedIndex === i ? " selected" : ""
+                }`}
                 style={{
                   transform: `rotate(${getRotation(
                     i,
