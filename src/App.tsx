@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import "./App.css";
-import Header from "./Header";
+import Header, { APP_TITLE } from "./Header";
 
 function App() {
   const [name, setName] = useState("");
@@ -12,6 +12,11 @@ function App() {
   const [checked, setChecked] = useState<boolean[]>([]);
   const [showModal, setShowModal] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
+
+  // Set document title from centralized APP_TITLE
+  useEffect(() => {
+    document.title = APP_TITLE;
+  }, []);
 
   const addName = () => {
     if (name.trim() && !names.includes(name.trim())) {
