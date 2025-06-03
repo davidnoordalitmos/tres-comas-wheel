@@ -73,6 +73,7 @@ function App() {
 
   // Sync state to URL
   useEffect(() => {
+    if (names.length === 0) return; // Don't clear the URL if no names
     const params = new URLSearchParams();
     names.forEach((n, i) => {
       params.append("name", n);
@@ -81,25 +82,30 @@ function App() {
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   }, [names, checked]);
 
-  // Load state from URL on mount
+  // Load state from URL on mount and whenever the search string changes
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const loadedNames: string[] = [];
-    const loadedChecked: boolean[] = [];
-    const nameParams = params.getAll("name");
-    const checkedParams = params.getAll("checked");
-    if (
-      nameParams.length &&
-      checkedParams.length &&
-      nameParams.length === checkedParams.length
-    ) {
-      for (let i = 0; i < nameParams.length; i++) {
-        loadedNames.push(nameParams[i]);
-        loadedChecked.push(checkedParams[i] === "1");
+    const updateFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const loadedNames: string[] = [];
+      const loadedChecked: boolean[] = [];
+      const nameParams = params.getAll("name");
+      const checkedParams = params.getAll("checked");
+      if (
+        nameParams.length &&
+        checkedParams.length &&
+        nameParams.length === checkedParams.length
+      ) {
+        for (let i = 0; i < nameParams.length; i++) {
+          loadedNames.push(nameParams[i]);
+          loadedChecked.push(checkedParams[i] === "1");
+        }
+        setNames(loadedNames);
+        setChecked(loadedChecked);
       }
-      setNames(loadedNames);
-      setChecked(loadedChecked);
-    }
+    };
+    updateFromUrl();
+    window.addEventListener("popstate", updateFromUrl);
+    return () => window.removeEventListener("popstate", updateFromUrl);
   }, []);
 
   return (
